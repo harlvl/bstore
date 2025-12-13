@@ -1,6 +1,7 @@
 package com.lv.api.service.impl;
 
 import com.lv.api.dao.impl.IItemDAO;
+import com.lv.api.dto.ItemDTO;
 import com.lv.api.model.Item;
 import com.lv.api.service.IItemService;
 import jakarta.inject.Singleton;
@@ -20,5 +21,10 @@ public class ItemService implements IItemService {
     @Override
     public Optional<Item> findById(Long id) {
         return itemDAO.findById(id);
+    }
+
+    @Override
+    public Optional<ItemDTO> save(ItemDTO dto) {
+        return itemDAO.save(dto);
     }
 }

@@ -1,11 +1,10 @@
 package com.lv.api.controller;
 
+import com.lv.api.dto.ItemDTO;
 import com.lv.api.model.Item;
 import com.lv.api.service.IItemService;
 import io.micronaut.http.HttpResponse;
-import io.micronaut.http.annotation.Controller;
-import io.micronaut.http.annotation.Get;
-import io.micronaut.http.annotation.PathVariable;
+import io.micronaut.http.annotation.*;
 import io.micronaut.scheduling.TaskExecutors;
 import io.micronaut.scheduling.annotation.ExecuteOn;
 import io.micronaut.transaction.annotation.Transactional;
@@ -35,5 +34,13 @@ public class InventoryController {
         }
 
         return HttpResponse.ok(item.get());
+    }
+
+    @Transactional(rollbackFor = {java.lang.Throwable.class})
+    @Post
+    public HttpResponse<ItemDTO> save(@Body ItemDTO dto){
+        log.info("Save item {}", dto);
+        Optional<ItemDTO> out = itemService.save(dto);
+        return out.isEmpty() ? HttpResponse.notFound() : HttpResponse.ok(out.get());
     }
 }

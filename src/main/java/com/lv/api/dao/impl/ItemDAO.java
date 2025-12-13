@@ -1,5 +1,6 @@
 package com.lv.api.dao.impl;
 
+import com.lv.api.dto.ItemDTO;
 import com.lv.api.model.Item;
 import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
@@ -43,8 +44,37 @@ public class ItemDAO implements IItemDAO {
         return Optional.empty();
     }
 
+    @Override
+    public Optional<ItemDTO> save(ItemDTO dto) {
+        String sql = "INSERT INTO item (name, quantity) VALUES (?, ?) RETURNING id, name, quantity";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            int i = 0;
+            stmt.setString(++i, dto.getName());
+            stmt.setInt(++i, dto.getQuantity());
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return Optional.of(mapRowToDTO(rs));
+            }
+        } catch (SQLException e) {
+            log.error("Error saving item: {}", dto, e);
+            throw new RuntimeException("Database error", e);
+        }
+        return Optional.empty();
+    }
+
     private Item mapRowToItem(ResultSet rs) throws SQLException {
         return Item.builder()
+                .id(rs.getLong("id"))
+                .name(rs.getString("name"))
+                .quantity(rs.getInt("quantity"))
+                .build();
+    }
+
+    private ItemDTO mapRowToDTO(ResultSet rs) throws SQLException {
+        return ItemDTO.builder()
                 .id(rs.getLong("id"))
                 .name(rs.getString("name"))
                 .quantity(rs.getInt("quantity"))
