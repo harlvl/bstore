@@ -1,5 +1,6 @@
 package com.lv.api.dao.impl;
 
+import com.lv.api.dao.impl.tables.ItemColumns;
 import com.lv.api.dto.ItemDTO;
 import com.lv.api.model.Item;
 import jakarta.inject.Singleton;
@@ -67,17 +68,17 @@ public class ItemDAO implements IItemDAO {
 
     private Item mapRowToItem(ResultSet rs) throws SQLException {
         return Item.builder()
-                .id(rs.getLong("id"))
-                .name(rs.getString("name"))
-                .quantity(rs.getInt("quantity"))
+                .id(rs.getLong(ItemColumns.ID))
+                .name(rs.getString(ItemColumns.NAME))
+                .quantity(rs.getInt(ItemColumns.QUANTITY))
                 .build();
     }
 
     private ItemDTO mapRowToDTO(ResultSet rs) throws SQLException {
         return ItemDTO.builder()
-                .id(rs.getLong("id"))
-                .name(rs.getString("name"))
-                .quantity(rs.getInt("quantity"))
+                .id(rs.getLong(ItemColumns.ID))
+                .name(rs.getString(ItemColumns.NAME))
+                .quantity(rs.getInt(ItemColumns.QUANTITY))
                 .build();
     }
 }
