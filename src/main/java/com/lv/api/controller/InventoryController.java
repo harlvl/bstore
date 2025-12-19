@@ -1,6 +1,7 @@
 package com.lv.api.controller;
 
 import com.lv.api.dto.ItemDTO;
+import com.lv.api.dto.ItemsProviderDTO;
 import com.lv.api.model.Item;
 import com.lv.api.service.IItemService;
 import io.micronaut.http.HttpResponse;
@@ -10,6 +11,7 @@ import io.micronaut.scheduling.annotation.ExecuteOn;
 import io.micronaut.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -42,5 +44,13 @@ public class InventoryController {
         log.info("Save item {}", dto);
         Optional<ItemDTO> out = itemService.save(dto);
         return out.isEmpty() ? HttpResponse.notFound() : HttpResponse.ok(out.get());
+    }
+
+    @Transactional(rollbackFor = {java.lang.Throwable.class})
+    @Get("/find_providers/{item_id}")
+    public HttpResponse<?> findItemsProviders(@PathVariable("item_id") Long itemId){
+        log.info("Start find items providers by item id {}", itemId);
+        List<ItemsProviderDTO> out = itemService.findItemsProvider(itemId);
+        return out.isEmpty() ? HttpResponse.notFound() : HttpResponse.ok(out);
     }
 }

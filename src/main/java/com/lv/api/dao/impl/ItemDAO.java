@@ -1,7 +1,9 @@
 package com.lv.api.dao.impl;
 
 import com.lv.api.dao.impl.tables.ItemColumns;
+import com.lv.api.dao.impl.tables.ItemsProvidersColumns;
 import com.lv.api.dto.ItemDTO;
+import com.lv.api.dto.ItemsProviderDTO;
 import com.lv.api.model.Item;
 import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +13,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -38,8 +42,7 @@ public class ItemDAO implements IItemDAO {
             }
 
         } catch (SQLException e) {
-            log.error("Error fetching item with id: {}", id, e);
-            throw new RuntimeException("Database error", e);
+            handleSQLError(String.format("Error fetching item with id %d", id), e);
         }
 
         return Optional.empty();
@@ -60,10 +63,52 @@ public class ItemDAO implements IItemDAO {
                 return Optional.of(mapRowToDTO(rs));
             }
         } catch (SQLException e) {
-            log.error("Error saving item: {}", dto, e);
-            throw new RuntimeException("Database error", e);
+            handleSQLError(String.format("Error saving item with id: %s", dto.getId()), e);
         }
         return Optional.empty();
+    }
+
+    @Override
+    public List<ItemsProviderDTO> findItemsProvider(Long itemId) {
+
+        String sql = "select p.id, p.name, p.phone_number, ip.cost from provider p " +
+                "join items_providers ip on p.id = ip.provider_id " +
+                "join item i on ip.item_id = i.id " +
+                "where i.id = ? order by ip.cost asc, p.name asc";
+
+        List<ItemsProviderDTO> out = new ArrayList<>();
+
+        try (Connection c = dataSource.getConnection();
+             PreparedStatement stmt = c.prepareStatement(sql)) {
+
+            stmt.setLong(1, itemId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Optional<ItemsProviderDTO> dto = Optional.of(mapRowToItemProviders(rs));
+                dto.ifPresent(out::add);
+            }
+        } catch (SQLException e) {
+            handleSQLError(String.format("Error fetching item providers for id: %s", itemId), e);
+        }
+
+        return out;
+    }
+
+    private ItemsProviderDTO mapRowToItemProviders(ResultSet rs) throws SQLException {
+        ItemsProviderDTO dto = new ItemsProviderDTO();
+
+        dto.setId(rs.getLong(ItemsProvidersColumns.ID));
+        dto.setName(rs.getString(ItemsProvidersColumns.NAME));
+        dto.setPhoneNumber(rs.getString(ItemsProvidersColumns.PHONE_NUMBER));
+        dto.setCost(rs.getDouble(ItemsProvidersColumns.COST));
+
+        return dto;
+    }
+
+    private void handleSQLError(String message, Exception e) {
+        log.error(message, e);
+        throw new RuntimeException("Database error", e);
     }
 
     private Item mapRowToItem(ResultSet rs) throws SQLException {

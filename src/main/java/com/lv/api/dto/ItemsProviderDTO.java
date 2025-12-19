@@ -11,8 +11,9 @@ import lombok.NoArgsConstructor;
 @Serdeable
 @NoArgsConstructor
 @AllArgsConstructor
-public class ItemDTO {
+public class ItemsProviderDTO {
     private Long id;
     private String name;
-    private Integer quantity;
+    private String phoneNumber;
+    private Double cost;
 }
