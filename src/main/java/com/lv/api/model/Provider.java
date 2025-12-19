@@ -13,12 +13,12 @@ import java.time.LocalDateTime;
 @Serdeable
 @NoArgsConstructor
 @AllArgsConstructor
-public class Item {
+public class Provider {
     private Long id;
     private String name;
     private String description;
-    private Integer quantity;
-    private Double price;
+    private String ruc;
+    private String phoneNumber;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
