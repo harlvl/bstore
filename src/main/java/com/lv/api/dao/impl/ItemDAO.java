@@ -4,7 +4,6 @@ import com.lv.api.dao.impl.tables.ItemColumns;
 import com.lv.api.dao.impl.tables.ItemsProvidersColumns;
 import com.lv.api.dto.ItemDTO;
 import com.lv.api.dto.ItemsProviderDTO;
-import com.lv.api.model.Item;
 import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,8 +27,9 @@ public class ItemDAO implements IItemDAO {
     }
 
     @Override
-    public Optional<Item> findById(Long id) {
-        String sql = "SELECT i.id, i.name, i.quantity FROM item i WHERE i.id = ?";
+    public Optional<ItemDTO> findById(Long id) {
+        String sql = "SELECT i.id, i.name, i.quantity, u.value FROM item i JOIN unit u on i.unit_id = u.id " +
+                "WHERE i.id = ?";
 
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -111,11 +111,12 @@ public class ItemDAO implements IItemDAO {
         throw new RuntimeException("Database error", e);
     }
 
-    private Item mapRowToItem(ResultSet rs) throws SQLException {
-        return Item.builder()
+    private ItemDTO mapRowToItem(ResultSet rs) throws SQLException {
+        return ItemDTO.builder()
                 .id(rs.getLong(ItemColumns.ID))
                 .name(rs.getString(ItemColumns.NAME))
                 .quantity(rs.getInt(ItemColumns.QUANTITY))
+                .unit(rs.getString(ItemColumns.UNIT_VALUE))
                 .build();
     }
 

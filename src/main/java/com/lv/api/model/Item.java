@@ -20,6 +20,9 @@ public class Item {
     private Integer quantity;
     private Double price;
 
+//    FK
+    private Long unitId;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

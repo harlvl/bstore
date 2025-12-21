@@ -2,7 +2,6 @@ package com.lv.api.controller;
 
 import com.lv.api.dto.ItemDTO;
 import com.lv.api.dto.ItemsProviderDTO;
-import com.lv.api.model.Item;
 import com.lv.api.service.IItemService;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
@@ -28,9 +27,9 @@ public class InventoryController {
 
     @Transactional(rollbackFor = {java.lang.Throwable.class})
     @Get("/{id}")
-    public HttpResponse<Item> findById(@PathVariable Long id){
+    public HttpResponse<ItemDTO> findById(@PathVariable Long id){
         log.info("Get item by id {}", id);
-        Optional<Item> item = itemService.findById(id);
+        Optional<ItemDTO> item = itemService.findById(id);
         if (item.isEmpty()) {
             return HttpResponse.notFound();
         }
